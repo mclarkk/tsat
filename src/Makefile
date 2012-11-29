@@ -30,6 +30,7 @@ SOCK_EXEC = ../sock
 ADC_EXEC = ../adc
 PWM_EXEC = ../pwm
 COMM_EXEC = ../test_Comm
+LOOP_EXEC = ../loop
 
 # Default make target is first
 #
@@ -55,6 +56,9 @@ test_server:	test_server.c simple_sock.c ../include/simple_sock.h
 test_Comm:	./test_Comm.c ./Comm.c ../include/simple_sock.h ../include/Comm.h 
 		$(CXX) $(CFLAGS) -o $(COMM_EXEC) test_Comm.c Comm.c simple_sock.c $(INCLUDE)
 		chmod 711 $(COMM_EXEC)
+
+task_loop: ./task_loop.c ../include/pwm.h
+		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $(LOOP_EXEC) task_loop.c $(INCLUDE) $(LD_FLAGS)
 
 test_i2c.o:	test_i2c.c
 		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $@ -c $< $(INCLUDE)
