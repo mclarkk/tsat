@@ -1,0 +1,6 @@
+Great tutorial on sockets
+http://rhoden.id.au/doc/sockets2.html
+
+Great site for information on gumstix low level stuff
+http://www.jumpnowtek.com/index.php?option=com_content&view=article&id=56&Itemid=63
+Also on this site see the OMAP Technical Reference link for more information
