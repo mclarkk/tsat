@@ -160,8 +160,8 @@ void pwminit()
 	pwm11init();
 	sleep(1); // The motor has to sit at 0 for 1 second before recieving
                   // commands
-	pwm10(MOTOR_MIN);
-	pwm11(MOTOR_MIN);
+	pwm10(MOTOR_STOP);
+	pwm11(MOTOR_STOP);
 }
 
 void pwm8(double duty) {

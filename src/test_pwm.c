@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <unistd.h>
 
+#define FAN_STOP 0
+
 int main () {
         pwminit();
 //if((fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL; //open the memory for changing the PWM
@@ -27,12 +29,12 @@ int main () {
         while(quit[0] != 'q')
         {
                 printf("Enter which pwm 10=east, or 11=west, or 'q' for quit: ");
-                gets(quit)
+                gets(quit);
                 if(quit[0] == 'q')
                 {
                         break;
                 }
-                choice = atoi(&quit);
+                choice = atoi(quit);
                 switch(choice) {
                 case 8:printf("Enter a number for 8: ");
                         scanf("%d",&pwm8duty);getchar();
@@ -53,5 +55,7 @@ int main () {
                 default:printf("Wrong Number\n");break;
                 }
         }
+	pwm10(FAN_STOP);
+	pwm11(FAN_STOP);
         return 0;
 }
