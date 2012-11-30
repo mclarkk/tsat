@@ -32,9 +32,9 @@
  * while the stop value is the value required to stop the motor completely
  * requiring the start up sequence again.
  */
-#define MOTOR_MAX 	55 			// 100% thrust
-#define MOTOR_MIN 	30 			// 0% thrust
-#define MOTOR_STOP 	20 			//stops the motor from pulling current
+#define MOTOR_MAX 	638 			// 100% thrust
+#define MOTOR_MIN 	21 			// 0% thrust
+#define MOTOR_STOP 	0 			//stops the motor from pulling current
 
 /*
  * Define frequency for the PWMs here

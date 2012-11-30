@@ -1,6 +1,10 @@
-#include <stdlib.h>
+#include "../include/pwm.h"
+#include <math.h>
 #include <stdio.h>
-#include "pwm.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <unistd.h>
+
 
 int main() {
 	printf("Hello World!\n");

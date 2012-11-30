@@ -1,4 +1,4 @@
-//gcc -o derp detectColor.c -std=c99 `pkg-config --cflags --libs opencv`
+//gcc -o test_vision test_vision.c -std=c99 `pkg-config --cflags --libs opencv`
 
 #include <stdio.h>
 #include "cv.h"
@@ -13,16 +13,13 @@ int is_orange_seen(CvCapture* capture);
 
 main( int argc, char* argv[] ) {
 	CvCapture* capture = 0;
-	if( argc==1 ) {
-		capture = cvCreateCameraCapture(1);
-	} else {
-		capture = cvCreateFileCapture( argv[1] );
-	}
+	//capture = cvCreateCameraCapture(CV_CAP_ANY);
+	capture = cvCaptureFromCAM(-1);
 	assert( capture != NULL );
 	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, 640);
 	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 	// Rest of program proceeds totally ignorant
-  cvNamedWindow( "mywindow", 0); //CV_WINDOW_AUTOSIZE );
+  //cvNamedWindow( "mywindow", 0); //CV_WINDOW_AUTOSIZE );
    // Show the image captured from the camera in the window and repeat
 	while(1) {
 		fprintf(stderr, "%d ", is_orange_seen(capture));
@@ -34,7 +31,7 @@ main( int argc, char* argv[] ) {
 	}
    // Release the capture device housekeeping
    cvReleaseCapture( &capture );
-   cvDestroyWindow( "mywindow" );
+//   cvDestroyWindow( "mywindow" );
 }   
 
 int is_orange_seen(CvCapture* capture) {
@@ -55,7 +52,7 @@ int is_orange_seen(CvCapture* capture) {
      IplImage* imgThresh = GetThresholdedImage(imgHSV);
 	  CvScalar avg = cvAvg(imgThresh, NULL);
 	  //printf("%f\n", avg.val[0]);
-     cvShowImage( "mywindow", imgThresh );
+//     cvShowImage( "mywindow", imgThresh );
 //     cvShowImage( "mywindow", frame);
 		if (avg.val[0] > DETECTION_THRESH) {
 			detected = 1;
