@@ -164,6 +164,17 @@ void pwminit()
 	pwm11(MOTOR_STOP);
 }
 
+/*
+* Function pwmdeinit: Deinitializes the PWM (basically just stops the motors)
+*/
+void pwmdeinit()
+{
+	pwm10(MOTOR_STOP);
+	pwm11(MOTOR_STOP);
+        close(fd);
+}
+
+
 void pwm8(double duty) {
 	int temp=duty;
 	changemem('w',PWM8TLMAR,TLDRVAL8+temp);
