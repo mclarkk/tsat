@@ -136,12 +136,12 @@ int changemem(char t, int a, int b) {
 	writeval = b;
 	switch(access_type) {
 		case 'h':
-			*((unsigned short *) virt_addr) = writeval;
-			read_result = *((unsigned short *) virt_addr);
+			*((volatile unsigned short *) virt_addr) = writeval;
+			read_result = *((volatile unsigned short *) virt_addr);
 			break;
 		case 'w':
-			*((unsigned long *) virt_addr) = writeval;
-			read_result = *((unsigned long *) virt_addr);
+			*((volatile unsigned long *) virt_addr) = writeval;
+			read_result = *((volatile unsigned long *) virt_addr);
 			break;
 		}
 	if(munmap(map_base, MAP_SIZE) == -1) FATAL; //removes mapping
@@ -235,7 +235,7 @@ void pwm11init(void) {
 	changemem('h',PWM11ADR,PORTTYPE);
 	changemem('w',PWM11TLDR,TLDRVAL11);
         // switch these depending on whether you have a motor or a servo connected
-	changemem('w',PWM10TLMAR,TLDRVAL11+MOTOR_STOP);
+	changemem('w',PWM11TLMAR,TLDRVAL11+MOTOR_STOP);
 	changemem('w',PWM11TCRR,TLDRVAL11);
 	changemem('w',PWM11TCLR,TIMERSTART);
 }

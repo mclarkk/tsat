@@ -85,7 +85,7 @@ int main()
                 get_timestamp(&timestamp_begin_loop);
 
                 // Comm to groundstation
-                Comm_loop();
+         //       Comm_loop();
 
                 // sleep until Comm_loop's time is up
                 get_timestamp(&timestamp_now);
@@ -95,7 +95,7 @@ int main()
                 hc_sleep(time_subtract(COMM_LOOP_TIME,curr_time_diff));
 
                 // plan
-                Plan_loop();
+           //     Plan_loop();
 
                 // sleep until Plan_loop's time is up
                 copy_timeval(&timestamp_prev, &timestamp_now);
@@ -106,7 +106,7 @@ int main()
                 hc_sleep(PLAN_LOOP_TIME - curr_time_diff);
 
                 // read sensors and estimate
-                Estimation_loop();
+             //   Estimation_loop();
 
                 // sleep until Estimation_loop's time is up
                 copy_timeval(&timestamp_prev, &timestamp_now);

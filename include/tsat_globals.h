@@ -1,15 +1,15 @@
 /****************************************************************
  *
- * Author: Justin Bradley
+ * Author: Meghan Clark
  * Title: tsat_globals.h
- * Date: Thursday, April  7, 2011
+ * Date: Dec 10, 2012
  * Description: Contains all the global variables for sharing of information
- * NOTE: This should ONLY be #included by hc1_main.c
+ * NOTE: This should ONLY be #included by tsat_main.c
  *
  ****************************************************************/
 
-#ifndef HC1_GLOBALS_H
-#define HC1_GLOBALS_H
+#ifndef TSAT_GLOBALS_H
+#define TSAT_GLOBALS_H
 
 #include "hc1_structs.h"
 #include "Config.h"
@@ -28,7 +28,7 @@ Command planner_cmd_G = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0}, 0, 0.0};
 
 // current best estimate of what the HC is doing including 
 // complete hovercraft information
-HovercaftInfo hc_info_G = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0}, 0.0f, 0.0f, 0, {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0}, 0.0}, 0.0f, 0.0f, 0.0f, 0.0};
+//HovercaftInfo hc_info_G = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0}, 0.0f, 0.0f, 0, {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0}, 0.0}, 0.0f, 0.0f, 0.0f, 0.0};
 
 //current control inputs for what the hovercraft should do.
 ControlInfo hc_control_G = {0.0f, 0.0f, 0, 0.0};
@@ -45,10 +45,8 @@ extern const float goal_threshold_G = 0.1;
 // NOTE: when declaring constant global values to be shared across files, you
 // must declare them as extern const everywhere. This gives the linker access to
 // the variable, otherwise it has no access to it
-extern const float SYSTEM_LOOP_TIME =     1.0f/SYSTEM_RATE;     // seconds
-extern const float COMM_LOOP_TIME =       SYSTEM_LOOP_TIME/4.0; // seconds
-extern const float PLAN_LOOP_TIME =       SYSTEM_LOOP_TIME/4.0; // seconds
-extern const float ESTIMATION_LOOP_TIME = SYSTEM_LOOP_TIME/4.0; // seconds
-extern const float CONTROL_LOOP_TIME =    SYSTEM_LOOP_TIME/4.0; // seconds
+//extern const float SYSTEM_LOOP_TIME =     1.0f/SYSTEM_RATE;     // seconds
+extern const float CAMERA_LOOP_TIME =    0.5;// SYSTEM_LOOP_TIME/2.0; // seconds
+//extern const float CONTROL_LOOP_TIME =    SYSTEM_LOOP_TIME/2.0; // seconds
 
-#endif // HC1_GLOBALS_H
+#endif // TSAT_GLOBALS_H

@@ -7,8 +7,8 @@
  * NOTE: For TableSat, our pwm channels are as follows:
  * PWM8 = not used
  * PWM9 = not used
- * PWM10 = fan at 90 degrees from bubble levels on TSat
- * PWM11 = fan at 270 degrees from bubble levels on TSat
+ * PWM10 = fan at 270 degrees from bubble levels on TSat
+ * PWM11 = fan at 90 degrees from bubble levels on TSat
  *
  ****************************************************************/
 
@@ -57,5 +57,6 @@ int main () {
         }
 	pwm10(FAN_STOP);
 	pwm11(FAN_STOP);
+        pwmdeinit();
         return 0;
 }

@@ -19,9 +19,10 @@ CFLAGS = -W -O3 -Wall -Wextra -ansi -pedantic
 GUMFLAGS = $(FLAGS) -I $(OETMP)/sysroots/overo-angstrom-linux-gnueabi/kernel/include/linux/i2c/ -L $(GUMLIB) -I $(GUMINC)
 LD_FLAGS = -lrt -lm
 INCLUDE = -I../include
+OPENCV_FLAGS =  `pkg-config --cflags --libs opencv`
 
-O_FILES = Plan.o Control.o Comm.o Estimation.o Utilities.o simple_sock.o adc.o hc1_main.o
-EXECUTABLE = ../hc1
+O_FILES = Control.o Camera.o Utilities.o tsat_main.o
+EXECUTABLE = ../tsat571
 
 I2C_O_FILES = i2c-api.o I2c_comm.o test_i2c.o
 I2C_EXEC = ../i2c
@@ -31,11 +32,12 @@ ADC_EXEC = ../adc
 PWM_EXEC = ../pwm
 COMM_EXEC = ../test_Comm
 LOOP_EXEC = ../loop
+VELS_EXEC = ../test_vels
 
 # Default make target is first
 #
 all:	$(O_FILES)
-	$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $(EXECUTABLE) $(O_FILES) $(INCLUDE) $(LD_FLAGS)
+	$(GUMCXX) $(OPENCV_FLAGS) $(CFLAGS) $(GUMFLAGS) -o $(EXECUTABLE) $(O_FILES) $(INCLUDE) $(LD_FLAGS)
 	chmod 711 $(EXECUTABLE)
 
 i2c:	$(I2C_O_FILES)
@@ -57,17 +59,20 @@ test_Comm:	./test_Comm.c ./Comm.c ../include/simple_sock.h ../include/Comm.h
 		$(CXX) $(CFLAGS) -o $(COMM_EXEC) test_Comm.c Comm.c simple_sock.c $(INCLUDE)
 		chmod 711 $(COMM_EXEC)
 
-task_loop: ./task_loop.c ../include/pwm.h
+test_vels:	./Utilities.o ./test_vels.c ../include/pwm.h
+		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $(VELS_EXEC) test_vels.c Utilities.o $(INCLUDE) $(LD_FLAGS)
+
+task_loop:	./task_loop.c ../include/pwm.h
 		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $(LOOP_EXEC) task_loop.c $(INCLUDE) $(LD_FLAGS)
 
 test_i2c.o:	test_i2c.c
 		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $@ -c $< $(INCLUDE)
 
-hc1_main.o:	hc1_main.c
+tsat_main.o:	tsat_main.c
 		$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $@ -c $< $(INCLUDE)
 
 %.o:	%.c ../include/%.h
-	$(GUMCXX) $(CFLAGS) $(GUMFLAGS) -o $@ -c $< $(INCLUDE)
+	$(GUMCXX) $(OPENCV_FLAGS) $(CFLAGS) $(GUMFLAGS) -o $@ -c $< $(INCLUDE)
 
 clean:
-	rm -rf *.o $(EXECUTABLE) $(I2C_EXEC) $(SOCK_EXEC) $(ADC_EXEC) $(PWM_EXEC) $(COMM_EXEC)
+	rm -rf *.o $(EXECUTABLE) $(I2C_EXEC) $(SOCK_EXEC) $(ADC_EXEC) $(PWM_EXEC) $(COMM_EXEC) $(LOOP_EXEC) $(VELS_EXEC)

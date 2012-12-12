@@ -24,6 +24,9 @@ test_server:
 test_Comm:
 	(cd src/; make test_Comm;)
 
+test_vels:
+	(cd src/; make test_vels;)
+
 send: 
 	scp hc1 root@192.168.0.108:
 

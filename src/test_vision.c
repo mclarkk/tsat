@@ -9,6 +9,7 @@
 void saturate_sv( IplImage* img );
 IplImage* GetThresholdedImage(IplImage* imgHSV);      
 int is_orange_seen(CvCapture* capture);
+int white_pixel_count(CvCapture* capture);
 
 
 main( int argc, char* argv[] ) {
@@ -16,13 +17,17 @@ main( int argc, char* argv[] ) {
 	//capture = cvCreateCameraCapture(CV_CAP_ANY);
 	capture = cvCaptureFromCAM(-1);
 	assert( capture != NULL );
-	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, 640);
-	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
+ //       IplImage* temp = cvQueryFrame( capture );
+//	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, 320);
+//	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, 240);
+        int width = (int) cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH );
+        int height = (int) cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT); 
+        fprintf(stderr, "W and H: %d x %d\n", width, height);
 	// Rest of program proceeds totally ignorant
   //cvNamedWindow( "mywindow", 0); //CV_WINDOW_AUTOSIZE );
    // Show the image captured from the camera in the window and repeat
 	while(1) {
-		fprintf(stderr, "%d ", is_orange_seen(capture));
+		fprintf(stderr, "%d ", white_pixel_count(capture));
      // Do not release the frame!
      //If ESC key pressed, Key=0x10001B under OpenCV 0.9.7(linux version),
      //remove higher bits using AND operator
@@ -33,6 +38,23 @@ main( int argc, char* argv[] ) {
    cvReleaseCapture( &capture );
 //   cvDestroyWindow( "mywindow" );
 }   
+
+int white_pixel_count(CvCapture* capture) {
+     int white_pix_count = 0;
+     IplImage* frame = cvQueryFrame( capture );
+     if ( !frame ) {
+       fprintf( stderr, "ERROR: frame is null...\n" );
+       return -1;
+     }
+     IplImage* imgHSV = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3); 
+     cvCvtColor(frame, imgHSV, CV_BGR2HSV); //Change the color format from BGR to HSV
+     IplImage* imgThresh = GetThresholdedImage(imgHSV);
+     CvScalar sum = cvSum(imgThresh);
+     white_pix_count = sum.val[0]/255;
+	  //printf("%f\n", avg.val[0]);
+     return white_pix_count;
+}
+
 
 int is_orange_seen(CvCapture* capture) {
      int detected = 0;

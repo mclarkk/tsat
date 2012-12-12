@@ -16,7 +16,7 @@
  * Parameters: none
  * Return Value: 0 on success, -1 on failure
  ***********************************************************/
-int Control_init();
+int Control_init(double angular_velocity);
 
 /***********************************************************
  * Function: Control_loop - executes the control

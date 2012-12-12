@@ -22,8 +22,8 @@ double get_timestamp()
         double seconds, microseconds;
         TimeVal tp;
         gettimeofday(&tp,NULL);
-        seconds = tp.tv_sec;
-        microseconds = (tp.tv_usec)/MICROSECONDS_CONVERT;
+        seconds = (double)tp.tv_sec;
+        microseconds = ((double)(tp.tv_usec))/MICROSECONDS_CONVERT;
         return seconds + microseconds;
 }
 
