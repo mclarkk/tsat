@@ -1202,24 +1202,18 @@ TableSat Details (Meghan)
 \end_layout
 
 \begin_layout Standard
-Our objective is to survey a straight segment of pipeline by flying a small,
- high aspect ratio UAS with a downward facing gimballed camera directly
- overhead.
- We have created a simulation in MATLAB to compare various solutions to
- the optimization problem posed.
- We first mention the assumptions we've made to simplify the problem and
- demonstrate why an analytical solution is not possible.
- We then describe the numerical methods chosen to solve our optimization
- problem, and discuss the models we have adopted.
- 
+Our objective is to survey orange segments of an orange-and-black paper
+ wall surrounding a rotating table-top satellite, TableSat, using a fixed
+ camera mounted at the center.
+ The surveying mission requires two configurable settings, angular velocity
+ and task rate.
+ Below is a description of the hardware and software components of our applicati
+on, as well as the assumptions and model parameters that arose from the
+ components.
 \end_layout
 
 \begin_layout Subsection
-Assumptions
-\end_layout
-
-\begin_layout Subsection
-Experimental Models and Setup
+Experimental Setup and Models
 \end_layout
 
 \begin_layout Subsubsection
@@ -1227,15 +1221,18 @@ TableSat
 \end_layout
 
 \begin_layout Standard
-bar
-\end_layout
-
-\begin_layout Subsubsection
-Camera
-\end_layout
-
-\begin_layout Standard
-foo
+TableSat is table-top satellite with one degree of freedom.
+ It has a base with a central post that comes to a conical point.
+ The board itself balances on the post via a screw located at the middle
+ of the board.
+ Because the contact is reduced to that single point, TableSat has a very
+ low coefficient of friction.
+ It rotates around the base using two standard computer cooling fans which
+ take PWM signals to dictate rotations per minute (RPMs).
+ The computer-on-module (COM) is a Gumstix Overo with a Tobi expansion board
+ that provides GPIO, such as that used for PWM output.
+ TableSat also has a camera mounted at the center that connects to the COM
+ through the USB port.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1243,11 +1240,114 @@ Gumstix
 \end_layout
 
 \begin_layout Standard
-foo
+The TableSat COM is a Gumstix Overo with a 1GHz ARMv7 processor and 512
+ MB DDR RAM.
+ The Gumstix runs Linux 2.6.36, which, it must be emphasized, is not a real-time
+ operating system (RTOS).
+ That means that because our software timers are run at the user-level,
+ as opposed to the kernel-level, the timers may be limited in their precision.
+ The slow speed of the processor also means that the effective frame rate
+ drops to around 8 frames per second (FPS).
+ This highlights the need to optimally determine how to most effectively
+ employ this limited resource.
+\end_layout
+
+\begin_layout Subsubsection
+Fans
+\end_layout
+
+\begin_layout Standard
+The actuators are two Sunon KD1209PTB2 computer cooling fans.
+ They weigh 108 grams.
+ They have an operating voltage range between 5 and 13.8 V (direct current).
+ Their max rated speed is 2600 RPM.
+ They're rated to draw 0.2 amps and 2.4 Watts.
+ RPMs are set by sending a PWM signal over the control line.
+ We hooked the PWM line up to an oscilloscope and determined what bytes
+ corresponded to what PWM signals - most importantly we figured out what
+ bytes corresponded to max speed.
+ In this way, we could tell what fraction of max speed we were signaling.
+\end_layout
+
+\begin_layout Subsubsection
+Camera
+\end_layout
+
+\begin_layout Standard
+The webcam is a Logitech QuickCam Pro 9000.
+ It connects via USB.
+ It has a max frame rate of 30 fps.
+ It has annnooooying auto-brightness/contrast adjustment that affects computer
+ vision.
+\end_layout
+
+\begin_layout Subsubsection
+Propulsion Control
+\end_layout
+
+\begin_layout Standard
+To properly maintain a constant speed, we would need to get information
+ about how fast the TableSat was going and adjust the fan signal accordingly.
+ However, that would require using the I2C bus protocol to talk to the onboard
+ IMU, and we didn't have enough time to get I2C working.
+ So in our project, we just send a constant PWM signal and hope that after
+ some time the TableSat reaches a steady state speed (it doesn't).
+\end_layout
+
+\begin_layout Subsubsection
+Frame Capture
+\end_layout
+
+\begin_layout Standard
+Camera access and frame processing was done using OpenCV libraries.
+ Made function that captured a 640x480 frame, converted it to HSV (Hue-Saturatio
+n-Value) and then thresholded on orange.
+ The resulting frame had white pixels (value 255) where orange was detected
+ and black pixels (value 0) everywhere else.
+ To get a count of the number of white pixels in the frame, you sum up all
+ the values and divide by 255.
 \end_layout
 
 \begin_layout Subsubsection
 Cyclic Executive
+\end_layout
+
+\begin_layout Standard
+Our program take two parameters - angular velocity and the task rate for
+ our periodic task.
+ Since we only consider the static case in this project, the fan speed can
+ be set in the beginning, and the only periodic task is then capturing frames
+ from the camera.
+ our fans are sent a constant signal in the beginning that corresponds to
+ the desired angular velocity.
+ Then it waits three minutes for the TableSat to spin up.
+ Then, when the experimenter presses ctrl-c, the program starts capturing
+ frames at the specified frame rate.
+ This is done using a cyclic executive that consists of one task, the frame
+ capturing/pixel counting task.
+ When the experimenter presses ctrl-c again, the system stops and some metrics
+ are displayed: the number of white pixels seen, the number of total pixels
+ captured, and the amount of time that the cyclic executive executed for.
+\end_layout
+
+\begin_layout Subsection
+Assumptions
+\end_layout
+
+\begin_layout Standard
+We assume that friction is constant, or at least consistent.
+ This is not necessarily true, because even when the gumstix is balanced
+ as you rotate it starts to precess due to non-uniform locations of the
+ cetners of mass.
+ As the tablesat precesses, it rotates on it s base and changes position,
+ which changes the coefficient of friction over time.
+ 
+\end_layout
+
+\begin_layout Standard
+Assuming constant (or consistent) friction is necessary for the assumption
+ that the same PWM signal will always result in the same steady-state velocity.
+ Since we are using open-loop control, this assumption is crucial.
 \end_layout
 
 \begin_layout Section
@@ -4001,12 +4101,22 @@ N/A
 Experimental Results (Meghan)
 \end_layout
 
+\begin_layout Standard
+We lost.
+\end_layout
+
 \begin_layout Section
 Conclusions and Future Work (Meghan)
 \end_layout
 
 \begin_layout Standard
-foo.
+The most awesome thing would be to write a proper closed-loop controller
+ for TableSat.
+ This would involve getting I2C working so that we could talk to the IMU.
+ This would allow us to maintain a constant velocity, which would produce
+ far more consistent results.
+ Then we could do a broad parameter sweep.
+ One difficulty of this is that power consumption will be harder to measure.
 \end_layout
 
 \begin_layout Standard
