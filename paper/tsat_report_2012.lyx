@@ -101,7 +101,7 @@ set_width "auto"
 \end_layout
 
 \begin_layout Section
-Introduction (Justin)
+Introduction
 \end_layout
 
 \begin_layout Standard
@@ -110,12 +110,13 @@ Modern systems require sensors, actuators, algorithms, and real-time digital
  designated goals.
  Often each of these individual subsystems are designed independently to
  meet performance objectives.
- Compositionality and composability can suffer without co-design techniques
- that account for limitations and strengths of each subsystem as well as
- the physical system with which the system interacts.
+ Important system design properties such as compositionality and composability
+ can suffer without co-design techniques that account for limitations and
+ strengths of each subsystem as well as the physical objects with which
+ the system interacts.
  Additionally, as systems become smaller, requiring less energy for actuation
- and sensing, computational (cyber) resources begin to demand resources
- comparable to that of the physical system.
+ and sensing, computational (cyber) resources begin to demand energy comparable
+ to that of the physical system.
 \end_layout
 
 \begin_layout Standard
@@ -210,7 +211,7 @@ status collapsed
 \align center
 \begin_inset Graphics
 	filename pics/tablesat.png
-	scale 50
+	scale 40
 
 \end_inset
 
@@ -243,105 +244,217 @@ name "fig:TableSat"
 
 \end_inset
 
+ We have fitted TableSat with a camera and propose an example mission to
+ emulate a satellite gathering important data.
+ The example mission is to collect the maximum amount of 
+\begin_inset Quotes eld
+\end_inset
 
+information
+\begin_inset Quotes erd
+\end_inset
+
+ which we define to be number of orange pixels viewed by the camera.
+ The colored paper setup can also be seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:TableSat"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-This paper presents a new multi-disciplinary optimization
+We first introduce some related work in the fields of real-time systems
+ and aerospace systems.
+ We then describe the cost function including the metrics describing the
+ competing mission objectives.
+ A description of our experimental setup follows, after which we present
+ analytical and subsequently experimental results.
+ 
+\end_layout
+
+\begin_layout Section
+Related Work
+\end_layout
+
+\begin_layout Standard
+The design of control systems under the constraints of cyber resources is
+ not a new area of research.
+ Anytime control
 \begin_inset space ~
 \end_inset
 
 
 \begin_inset CommandInset citation
 LatexCommand cite
-key "andersson2000survey"
+key "fontanelli2008anytime,gupta2010anytime,bhattacharya2004anytime"
 
 \end_inset
 
- direction for which the models being integrated optimize energy consumption
- over both physical effectors and computational (cyber) resources.
- The cost function to be optimized includes weighted terms representing
- energy used by physical actuators and energy used by a multi-core or variable-s
-peed processing architecture.
- This paper presents a case study and appropriate UAS mission aimed at assessing
- the potential performance improvements possible with co-optimization of
- cyber and physical resources over energy use, time, and mission accomplishment.
- A mission-appropriate analytical cost function is developed to provide
- a minimal-cost trajectory over the mission.
- We simplify the cost function by allowing design variables to remain static
- throughout the mission, consistent with a steady flight scenario, thereby
- reducing the complexity of the cost function and optimization process.
- We then examine Pareto fronts for combinations of cost function objectives
- to demonstrate the important tradeoffs between physical and cyber resources
- and to give insight into the interdependence between them.
- We use a numerical solver to find physical-subsystem optimal, cyber-subsystem
- optimal, and holistic system optimal solutions and compare them with solutions
- selected from Pareto front analysis.
- We demonstrate that only via a total cyber-physical system (CPS) optimization
- can one achieve efficiency throughout the total system.
+ tries to improve control accuracy as cyber resources become available.
+ Feedback scheduling
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "arzén2002introduction,sha2004real,eker2000feedback"
+
+\end_inset
+
+ is a technique wherein cyber resources are modified according to the needs
+ of the cyber system.
+ However, only recently in the context of aerospace, satellites, avionics
+ systems, surveillance, and UASs has there been increasing work attempting
+ to address this important issue.
 \end_layout
 
 \begin_layout Standard
-For our case study, we adopt a solar-supplemented powered-glider small UAS
- currently flown by a University of Michigan student team (SolarBubbles)
- for which steady flight performance parameters are available.
- The small UAS payload is a downward-facing video camera that can provide
- frames at a variable rate.
- The simulated avionics allows direct regulation of computational power
- requirements (energy use) in a manner that trades energy use with camera
- data acquisition bandwidth.
- A one-dimensional pipeline inspection case study is investigated, focusing
- attention on physical and computational energy use tradeoffs without complexity
- in the actual path through three-dimensional space.
+In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "agrawal2003realtime"
+
+\end_inset
+
+ the authors explore some of the reasons why more advanced control algorithms
+ are not used in modern avionics system.
+ They conclude that a Quality of Service (QoS) approach is needed to address
+ the problem and they propose an adaptive resource management scheme for
+ a real-time avionics system using anytime control and accompanying nontradition
+al task scheduling.
+ Russ and Stütz very recently proposed a higher level style of resource
+ management that includes task based guidance and navigation and perception
+ plans.
+ Their method focuses on finding algorithmic solutions adapting to perceptual
+ demands that vary during flight as well as balancing those demands with
+ sensory and computational resources
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "russ2012airborne"
+
+\end_inset
+
+.
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "narayan2009computationally"
+
+\end_inset
+
+ Narayan et al.
+ present a novel comptationally adaptive trajectory decision optimization
+ system that can dynamically manage, calculate, and schedule task execution
+ parameters.
+ An offline and online component work together to increase overall mission
+ efficiency.
+\end_layout
+
+\begin_layout Standard
+For satellite systems information gathering by imaging systems generally
+ happens in a relatively short time window (in low earth orbits around three
+ min) during which the system must maximize its efforts to collect the data.
+ There is generally a ten to fifteen minute window during which the system
+ can prepare resources for intense data collection.
+ Traditionally such task scheduling problems has been achieved by teams
+ of planners on the ground write and check procedures
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "harrison1999task"
+
+\end_inset
+
+.
+ However, automated methods have been proposed and used with success.
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bataille1999efficiency"
+
+\end_inset
+
+ the authors examine and design for physical constraints, fairness, and
+ efficiency for different agents using a shared resource (an earth observing
+ satellite).
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bresina1997optimising"
+
+\end_inset
+
+ two techniques, GenH which generates a specialized search heuristic, and
+ HBSS which employs the heuristic within a stochastic sampling method are
+ combined together to automatically generate high quality schedules with
+ respect to an objective function.
+\end_layout
+
+\begin_layout Standard
+Our work complements existing research by providing a mechanism to optimize
+ over cyber-physical resources as well as mission objectives for the holistic
+ system while leveraging optimization theory and more particularly optimal
+ control.
+ Existing solutions to dynamically adjust parameters can provide the tools
+ by which a system could use our methodology to produce more efficient missions
+ according to the individual metrics chosen in the cost function.
 \end_layout
 
 \begin_layout Section
-Related Work (Justin)
-\end_layout
-
-\begin_layout Section
-Cost Functions (Justin)
+Cost Functions
 \end_layout
 
 \begin_layout Standard
-We seek optimization over both physical and cyber characteristics of the
- UAS in order to more holistically optimize system performance for a designated
- mission.
- This means developing cost terms for task performance and energy required
- for cyber activities as well as for control actuation effort and propulsion.
- Moreover, we naturally want to maximize efficiency of our designated mission
- which will include goals for both the physical and cyber components of
- the UAS.
- These mission-dependent goals may include maximizing coverage area or amount
- of information acquired for a given area, along with collection, processing
- and transmission of data.
- 
+We desire to optimize over both physical and cyber characteristics to improve
+ efficiency and performance for our designated mission.
+ We do this by developing cost terms for physical system energy, cyber utilizati
+on, as well as mission-critical task performance.
+ This means developing cost terms for the energy consumed by the fan actuators
+ as function of desired angular velocity, a term representing the energy
+ consumed by the computing system, and a metric measuring the amount of
+ information we gather from the onboard camera.
 \end_layout
 
 \begin_layout Standard
-In this work we develop cost terms representing both mission goals and efficienc
-y for a UAS whose mission is surveillance of a straight section of pipeline
- with a small, lightweight downward facing gimballed camera.
- Because of this we focus on movement in one dimension only and assume flight
- dynamics are governed by steady flight assumptions.
- 
-\end_layout
-
-\begin_layout Standard
-Our objective for the physical system will be to determine the optimal velocity
- (air speed in one dimension) of the UAS for the mission.
- Owing to the assumptions of the mission and steady flight we rely on a
- gimbal to consistently adjust the camera to point directly toward the ground
- (optical axis perpendicular to ground plane) which compensates for changes
- in pitch of the aircraft needed to accommodate various velocities of flight.
- 
-\end_layout
-
-\begin_layout Standard
-We model a single real-time task to accomplish the primary goals of the
- mission related to pipeline surveillance.
- This task performs image acquisition, processing, and communication/storage
- of image.
+Our objective for the physical system will be to determine the optimal angular
+ velocity of TableSat for our proposed mission.
+ Because the onboard camera is fixed and rotating with TableSat, and since
+ we only allow for rotation in one direction, we need only consider simplified
+ motion about a single axis.
+ Further, for the cyber system we model a single real-time task which accomplish
+es the primary goals of the mission to view orange.
+ This task performs image acquisition, processing, and storage of each image.
  Our design objective for the cyber system will be to determine the optimal
  execution rate of this task.
  While there are other system-critical tasks on the cyber system including
@@ -351,8 +464,9 @@ We model a single real-time task to accomplish the primary goals of the
 \end_layout
 
 \begin_layout Standard
-We divide the cost terms into physical and cyber goals for clarity, and
- to emphasize the assimilation of each into a system-wide cost function.
+We divide the cost terms into physical and cyber cost terms and associated
+ functions for clarity, and to emphasize the assimilation of each into a
+ system-wide cost function.
  
 \begin_inset Quotes eld
 \end_inset
@@ -361,8 +475,8 @@ Physical
 \begin_inset Quotes erd
 \end_inset
 
- in the context of a UAS includes items related to flight, for example,
- the airframe, propulsion system, and control surfaces.
+ in the context of a TableSat includes items related to rotation of the
+ system, for example, the rotating table, fan actuators, and sensors.
  
 \begin_inset Quotes eld
 \end_inset
@@ -373,8 +487,6 @@ Cyber
 
  relates to items required for data processing, communication, image collection,
  computation of control inputs, etc.
- In this work we endeavor to focus clearly on the idea of combining physical
- and cyber cost terms into a holistic cyber-physical system cost function.
 \end_layout
 
 \begin_layout Subsection
@@ -382,15 +494,9 @@ Physical System Terms
 \end_layout
 
 \begin_layout Standard
-Small UAS often have very modest energy reserves, most often consisting
- of small battery packs, or a small fuel tank.
- In non-energy-harvesting applications under normal conditions such energy
- supplies can provide between thirty minutes to multiple hours of flight
- time.
- These flight times can be reduced when cyber-intensive activities such
- as image processing and communication are involved.
- Minimizing energy consumption during steady flight is an important consideratio
-n in the design and control of the UAS.
+To balance the goals of the physical system we seek to minimize total energy
+ consumption by the fan actuators while also minimizing time required for
+ mission completion.
 \end_layout
 
 \begin_layout Subsubsection
@@ -398,110 +504,127 @@ Physical System Energy
 \end_layout
 
 \begin_layout Standard
-In most aircraft applications, propulsion will consume the majority of the
- energy required for flight, surpassing actuation effort required by control
- surfaces.
- For simplicity, in this work we assume propulsion is the only drain on
- energy supplies by the physical system and we model steady flight in which
- power used by control surface servos would be constant or near-constant.
- We therefore seek to minimize energy of the physical system over the entire
- mission
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$E$"
-description "Energy for the physical system"
+In TableSat all the energy required to rotate the table is consumed by the
+ fan actuators.
+ The metric then for physical system energy becomes
+\begin_inset Formula 
+\begin{equation}
+E=\int P\left(\omega\right)dt.
+\end{equation}
 
 \end_inset
 
+Because we use simple computer fans controlled by a 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "PWM"
+description "Pulse Width Modulation"
 
+\end_inset
+
+Pulse Width Modulation (PWM) signal we assume power consumed is simply
 \begin_inset Formula 
 \begin{equation}
-E=\int P\left(v\left(t\right)\right)dt\label{eq:E}
+P\left(V\right)=IV\label{eq:power}
 \end{equation}
 
 \end_inset
 
 where 
-\begin_inset Formula $P\left(v\left(t\right)\right)$
+\begin_inset Formula $I$
 \end_inset
 
- is a traditional model for power as a function of velocity
+ is the constant current draw (a parameter of the fan), and 
+\begin_inset Formula $V$
+\end_inset
+
+ the time averaged voltage 
+\begin_inset Quotes eld
+\end_inset
+
+seen
+\begin_inset Quotes erd
+\end_inset
+
+ by the fan via the PWM duty cycle.
+ As voltage is a function of PWM signal which is our control input, we can
+ rewrite Equation
 \begin_inset space ~
 \end_inset
 
 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "mcclamroch2011steady"
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:power"
 
 \end_inset
 
-
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$P(v)$"
-description "Power as a function of velocity"
-
-\end_inset
-
-
+ as
 \begin_inset Formula 
-\begin{equation}
-P\left(v\right)=\frac{1}{2}C_{D_{0}}\rho v\left(t\right)_{air}^{3}+\frac{2KW^{2}}{\rho v\left(t\right)_{air}S}.\label{eq:power}
-\end{equation}
+\[
+P\left(d\right)=IV_{{\rm max}}\frac{d-d_{{\rm min}}}{d_{{\rm max}}-d_{{\rm min}}}
+\]
 
 \end_inset
 
+where 
+\begin_inset Formula $d$
+\end_inset
 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$K$"
-description "Aerodynamic parameter"
+ is the PWM duty cycle and 
+\begin_inset Formula $d_{{\rm min}}$
+\end_inset
 
+ and 
+\begin_inset Formula $d_{{\rm max}}$
+\end_inset
+
+ are the constant minimum and maximum duty cycles respectively as experimentally
+ determined.
+ 
+\begin_inset Formula $V_{{\rm max}}$
+\end_inset
+
+ is a constant parameter of the fan and is the maximum voltage the fan can
+ accept.
+\end_layout
+
+\begin_layout Standard
+Because we require a power function that takes angular velocity as a parameter
+ for optimization we conducted a series of experiments commanding a PWM
+ duty cycle, awaiting approximately steady state angular velocity, and subsequen
+tly timing the rotational speed.
+ We used MATLAB's 
+\family typewriter
+cftool
+\family default
+ to determine a linear curve fit as seen in Figure
+\begin_inset space ~
 \end_inset
 
 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$W$"
-description "Weight"
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Linear-Curve-Fit"
 
 \end_inset
 
-
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$\\rho$"
-description "Air density"
-
-\end_inset
-
-
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$S$"
-description "Wing surface area"
-
-\end_inset
-
-
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$C_{D_0}$"
-description "Zero-lift drag coefficient"
-
-\end_inset
-
-
+.
+ We note that higher order polynomials would provide a better fit.
+ We explicitly chose a linear fit due to the uncertainty surrounding our
+ friction coefficients between experiments.
+ 
 \begin_inset Float figure
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\noindent
 \align center
 \begin_inset Graphics
-	filename pics/power_curve.png
+	filename pics/cftool_screenshot.png
+	scale 60
 
 \end_inset
 
@@ -512,10 +635,14 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Power Curve for SolarBubbles UAS
+Linear Curve Fit Using MATLAB's 
+\family typewriter
+cftool
+\family default
+
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:Power-Curve"
+name "fig:Linear-Curve-Fit"
 
 \end_inset
 
@@ -533,91 +660,91 @@ name "fig:Power-Curve"
 
 \end_inset
 
-In steady level flight, power of the aircraft, and therefore velocity, is
- manipulated by a throttle setting that maps nonlinearly to power as
+ Functionally we have
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$\\omega$"
+description "Angular velocity"
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{equation}
-P=\eta\delta_{t}\left(\frac{\rho}{\rho^{s}}\right)^{m}P_{{\rm max}}^{s}
+P\left(\omega\right)=IV_{{\rm max}}\left(\frac{p_{1}\omega+p_{2}-d_{{\rm min}}}{d_{{\rm max}}-d_{{\rm min}}}\right)\label{eq:p_omega}
 \end{equation}
 
 \end_inset
 
-where 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$P_{\\rm{max}}^{s}$"
-description "Maximum power of the engine/motor at sea level"
-
-\end_inset
-
-
-\begin_inset Formula $P_{{\rm max}}^{s}$
-\end_inset
-
- is the maximum power of the engine/motor at sea level, 
-\begin_inset Formula $m>0$
-\end_inset
-
- is a characteristic of the engine/motor, 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$\\eta$"
-description "Propeller efficiency factor"
-
-\end_inset
-
-
-\begin_inset Formula $0\le\eta\le1$
-\end_inset
-
- is a propeller efficiency factor, 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$\\rho^s$"
-description "Air density at sea level"
-
-\end_inset
-
-
-\begin_inset Formula $\rho^{s}$
-\end_inset
-
- is the air density at sea level, and 
-\begin_inset CommandInset nomenclature
-LatexCommand nomenclature
-symbol "$\\delta_t$"
-description "Throttle setting"
-
-\end_inset
-
-
-\begin_inset Formula $0\le\delta_{t}\le1$
-\end_inset
-
- is the throttle setting.
- The power curve for our UAS (described in Section
+Using the coefficients experimentally determined we can reduce Equation
 \begin_inset space ~
 \end_inset
 
 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Aircraft_description"
+reference "eq:p_omega"
 
 \end_inset
 
-) can be seen in Figure
+ to
+\begin_inset Formula 
+\begin{equation}
+P\left(\omega\right)=0.514\omega-0.292
+\end{equation}
+
+\end_inset
+
+ The experimentally determined power curve and associated energy curve can
+ be seen in Figure
 \begin_inset space ~
 \end_inset
 
 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Power-Curve"
+reference "fig:Power-and-Energy"
 
 \end_inset
 
 .
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+redo image
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Power and Energy Curves for TableSat Physical System
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Power-and-Energy"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -913,7 +1040,8 @@ status collapsed
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename pics/plot_H.png
+	filename pics/info_metric.png
+	scale 60
 
 \end_inset
 
@@ -1353,7 +1481,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_p.png
+	filename pics/pareto_Jp.png
 	width 45text%
 
 \end_inset
@@ -1396,7 +1524,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_c.png
+	filename pics/pareto_Jc.png
 	width 45text%
 
 \end_inset
@@ -1761,7 +1889,7 @@ reference "fig:pareto_J"
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \noindent
@@ -1775,7 +1903,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_ac_cu_i.png
+	filename pics/pareto_J_IUE.png
 	width 45text%
 
 \end_inset
@@ -1787,15 +1915,7 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Pareto Front for 
-\begin_inset Formula $E,\, U_{\tau}$
-\end_inset
-
-, and 
-\begin_inset Formula $H$
-\end_inset
-
-
+FIX THIS
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:pareto_E_U_H"
@@ -1822,7 +1942,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_ac_t_cu.png
+	filename pics/pareto_J_TEI.png
 	width 45text%
 
 \end_inset
@@ -1834,15 +1954,7 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Pareto Front for 
-\begin_inset Formula $E,\, T$
-\end_inset
-
-, and 
-\begin_inset Formula $U_{\tau}$
-\end_inset
-
-
+FIX THIS
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:pareto_E_T_U"
@@ -1874,7 +1986,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_i_t_cu.png
+	filename pics/pareto_J_UTE.png
 	width 45text%
 
 \end_inset
@@ -1886,15 +1998,7 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Pareto Front for 
-\begin_inset Formula $H,\, T$
-\end_inset
-
-, and 
-\begin_inset Formula $U_{\tau}$
-\end_inset
-
-
+FIX THIS
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:pareto_H_T_U"
@@ -1921,7 +2025,7 @@ status collapsed
 \noindent
 \align center
 \begin_inset Graphics
-	filename pics/pareto_J_i_t_ac.png
+	filename pics/pareto_J_UTI.png
 	width 45text%
 
 \end_inset
@@ -1933,15 +2037,7 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Pareto Front for 
-\begin_inset Formula $H,\, T$
-\end_inset
-
-, and 
-\begin_inset Formula $E$
-\end_inset
-
-
+FIX THIS
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:pareto_H_T_E"
