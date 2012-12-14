@@ -2,41 +2,10 @@
 \lyxformat 413
 \begin_document
 \begin_header
-\textclass aiaa
+\textclass article
 \begin_preamble
 \newcommand{\qed}{\hspace*{\fill}~$\square$}
 \newcommand{\mqed}{\tag*{$\square$}}
-
-% Added this to the preamble to deal with LyX's stupidity.
-% That is, whenever you use a subfigure in LyX, LyX adds the lines
-%---------------------
-% \@ifundefined{showcaptionsetup}{}{%
-% \PassOptionsToPackage{caption=false}{subfig}}
-% \usepackage{subfig}
-% \makeatother
-% \usepackage[caption=false]{subfig}     % subfigures
-%-----------------------
-% Unfortunately this messes up whatever AIAA has done to adjust
-% captions to suit its style. I have added the following to be used as
-% part of a LyX template (which includes my AIAA LyX layout file) to
-% fix this.
-
-% This fixes the float captions
- % pass [caption=false] to prevent LyX from screwing up the captions
-\usepackage[caption=false]{subfig} 
-
-% This fixes the subfloat captions
-% This introduces the capability to use a single parenthesis for subfloats.
-\DeclareCaptionLabelSeparator{paren}{) }
-% Set the font for subfloat captions
-\captionsetup[subfloat]{ %
- % This makes the subcaptions bold.
-font={footnotesize,bf}, %
- % This eliminates both parentheses around the subfloat label.
- labelformat=simple, %
- % This uses a right parenthisis as a separator.
- labelsep=paren % this came from the \DeclareCaptionLabelSeparator above
-}
 \end_preamble
 \use_default_options false
 \maintain_unincluded_children false
@@ -47,7 +16,7 @@ font={footnotesize,bf}, %
 \font_roman default
 \font_sans default
 \font_typewriter default
-\font_default_family default
+\font_default_family rmdefault
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
@@ -72,7 +41,7 @@ font={footnotesize,bf}, %
 \pdf_backref false
 \pdf_pdfusetitle false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_amsmath 2
 \use_esint 2
 \use_mhchem 0
@@ -93,8 +62,8 @@ font={footnotesize,bf}, %
 \bottommargin 1in
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\paragraph_indentation default
+\paragraph_separation skip
+\defskip medskip
 \quotes_language english
 \papercolumns 1
 \papersides 1
@@ -109,7 +78,7 @@ font={footnotesize,bf}, %
 \begin_body
 
 \begin_layout Title
-Multi-Disciplinary Cyber-Physical Optimization for Unmanned Aircraft Systems
+A Multi-disciplinary Optimization Scheme For TableSat
 \end_layout
 
 \begin_layout Author
@@ -237,9 +206,11 @@ sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\noindent
 \align center
 \begin_inset Graphics
-	filename pics/tablesat.jpg
+	filename pics/tablesat.png
+	scale 50
 
 \end_inset
 
@@ -522,11 +493,9 @@ description "Zero-lift drag coefficient"
 \end_inset
 
 
-\begin_inset Wrap figure
-lines 0
-placement o
-overhang 0in
-width "50col%"
+\begin_inset Float figure
+wide false
+sideways false
 status collapsed
 
 \begin_layout Plain Layout
@@ -555,6 +524,10 @@ name "fig:Power-Curve"
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -932,19 +905,10 @@ H=\int e^{-\alpha\Omega\left(v\left(t\right),r_{\tau}\left(k\right)\right)}dt.\l
 \end_inset
 
 
-\begin_inset Wrap figure
-lines 17
-placement i
-overhang 0in
-width "49text%"
+\begin_inset Float figure
+wide false
+sideways false
 status collapsed
-
-\begin_layout Plain Layout
-\begin_inset VSpace -7pt
-\end_inset
-
-
-\end_layout
 
 \begin_layout Plain Layout
 \align center
