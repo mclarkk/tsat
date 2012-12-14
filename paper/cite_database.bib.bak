@@ -166,18 +166,6 @@
   organization = {Citeseer}
 }
 
-@CONFERENCE{bresina1997optimising,
-  author = {Bresina, J. L. and Morris, R. A. and Edginton W. R.},
-  title = {{Optimising Observation Scheduling Objectives}},
-  booktitle = {Proceedings of the 1997 NASA Workshop on Planning and Scheduling
-	for Space},
-  year = {1997},
-  institution = {Proceedings of the 1997 NASA Wokshop on Planning and Scheduling for
-	Space},
-  owner = {justyn},
-  timestamp = {2012.12.13}
-}
-
 @ARTICLE{cambone2005unmanned,
   author = {Cambone, S.A. and Krieg, K. and Pace, P. and Linton, W.},
   title = {{Unmanned Aircraft Systems Roadmap 2005-2030}},
