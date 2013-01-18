@@ -1,0 +1,4172 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\newcommand{\qed}{\hspace*{\fill}~$\square$}
+\newcommand{\mqed}{\tag*{$\square$}}
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle false
+\papersize default
+\use_geometry true
+\use_amsmath 2
+\use_esint 2
+\use_mhchem 0
+\use_mathdots 2
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+A Multi-Disciplinary Cyber-Physical Optimization Scheme For TableSat
+\end_layout
+
+\begin_layout Date
+December 14, 2012
+\end_layout
+
+\begin_layout Author
+Justin Bradley
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+
+ and Meghan Clark
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+
+
+\size footnotesize
+Department of Aerospace Engineering, University of Michigan 
+\begin_inset Newline newline
+\end_inset
+
+Contact: justyn@umich.edu
+\size default
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+
+
+\size footnotesize
+Department of Electrical Engineering and Computer Science, University of
+ Michigan
+\begin_inset Newline newline
+\end_inset
+
+Contact: mclarkk@umich.edu
+\end_layout
+
+\begin_layout Abstract
+As digital and physical systems become more tightly integrated, multi-disciplina
+ry design will be necessary to maximize total-system efficiency.
+ Mission objectives and success of the system as a whole are becoming increasing
+ly dependent on appropriate allocation of computational resources balanced
+ against demands of the physical actuation systems.
+ In this paper we adapt and apply a co-optimization scheme considering tradeoffs
+ between costs associated with physical actuation effort required for control
+ and computational effort required to acquire and process incoming information.
+ We use TableSat, a tabletop satellite, as a real-world testbed to investigate
+ specifics of cyber-physical cost terms and their tradeoffs.
+ A multi-disciplinary cost function minimizes energy and maximize mission
+ efficiency and effectiveness.
+ We examine Pareto fronts over combinations of competing cyber and physical
+ objectives and demonstrate that excluding either cyber or physical cost
+ terms results in reduced performance for the holistic system over the course
+ of the mission.
+ These theoretical results are then verified using experimental data from
+ the TableSat platform.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset nomencl_print
+LatexCommand printnomenclature
+set_width "auto"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Modern systems require sensors, actuators, algorithms, and real-time digital
+ systems to coordinate their activities with a physical system to achieve
+ designated goals.
+ Often each of these individual subsystems are designed independently to
+ meet performance objectives.
+ Important system design properties such as compositionality and composability
+ can suffer without co-design techniques that account for limitations and
+ strengths of each subsystem as well as the physical objects with which
+ the system interacts.
+ Additionally, as systems become smaller, requiring less energy for actuation
+ and sensing, computational (cyber) resources begin to demand energy comparable
+ to that of the physical system.
+\end_layout
+
+\begin_layout Standard
+Control systems engineers attempt to optimize physical system trajectories
+ by the proper application of force over time.
+ Physics-based models of system dynamics including saturation constraints
+ and other nonlinearities are used to design control laws that achieve designed
+ trajectories - most often in the continuous time domain.
+ On the other hand, real-time systems engineers, using discrete mathematical
+ tools, optimize task allocation and scheduling over processor, communication,
+ and I/O resources to guarantee performance deadlines for reliability and
+ robustness.
+ Good design of the task schedule may provide enough slack so that energy
+ can be conserved through variable speed processors.
+ Alternatively, slack in the task schedule may allow for aperiodic and sporadic
+ task guarantees thereby providing event-driven capabilities or simply just
+ increased service of individual tasks.
+\end_layout
+
+\begin_layout Standard
+For systems which must more carefully manage all their physical and cyber
+ resources together to achieve their objectives, globally-optimal (minimum-energ
+y, minimum-time, maximum-information) performance can only be achieved by
+ identifying and exploiting coupling between cyber and physical resources
+ during the design process.
+ Cyber resources provide the means for guidance, navigation, and control
+ of the physical system, as well as the estimation of states, communication,
+ and processing of information.
+ The physical system, in turn, provides the ability to acquire information,
+ survey an area, or take important measurements.
+\end_layout
+
+\begin_layout Standard
+We have been conducting research to try and accomplish such optimal 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "CPS"
+description "Cyber-Physical System"
+
+\end_inset
+
+cyber-physical design.
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bradley2012multidisciplinary"
+
+\end_inset
+
+ we developed a multidisciplinary approach for optimizing over both cyber
+ and physical resources and including mission goals and objectives.
+ Using metrics encompassing physical system energy, time, surveillance informati
+on, and cyber utilization we showed that we can more appropriately balance
+ overall system performance.
+ We also used pareto front analysis to examine some of the coupling between
+ cyber and physical resource use.
+\end_layout
+
+\begin_layout Standard
+In this report we take this research a step further by trying to experimentally
+ validate this technique.
+ To this end we have adopted TableSat
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "vess2005system"
+
+\end_inset
+
+, a one-degree of freedom rotating platform emulating a small satellite
+ to demonstrate this method of design.
+ TableSat, shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:TableSat"
+
+\end_inset
+
+, uses computer fan actuators, rate gyros, and accelerometers controlled
+ by an onboard Gumstix computing platform to control it's rotation.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/tablesat.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+TableSat
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:TableSat"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+ We have fitted TableSat with a camera and propose an example mission to
+ emulate a satellite gathering important data.
+ The example mission is to collect the maximum amount of 
+\begin_inset Quotes eld
+\end_inset
+
+information
+\begin_inset Quotes erd
+\end_inset
+
+ which we define to be number of orange pixels viewed by the camera.
+ The colored paper setup can also be seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:TableSat"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We first introduce some related work in the fields of real-time systems
+ and aerospace systems.
+ We then describe the cost function including the metrics describing the
+ competing mission objectives.
+ A description of our experimental setup follows, after which we present
+ analytical and subsequently experimental results.
+ 
+\end_layout
+
+\begin_layout Section
+Related Work
+\end_layout
+
+\begin_layout Standard
+The design of control systems under the constraints of cyber resources is
+ not a new area of research.
+ Anytime control
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "fontanelli2008anytime,gupta2010anytime,bhattacharya2004anytime"
+
+\end_inset
+
+ tries to improve control accuracy as cyber resources become available.
+ Feedback scheduling
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "arzén2002introduction,sha2004real,eker2000feedback"
+
+\end_inset
+
+ is a technique wherein cyber resources are modified according to the needs
+ of the cyber system.
+ However, only recently in the context of aerospace, satellites, avionics
+ systems, surveillance, and UASs has there been increasing work attempting
+ to address this important issue.
+\end_layout
+
+\begin_layout Standard
+In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "agrawal2003realtime"
+
+\end_inset
+
+ the authors explore some of the reasons why more advanced control algorithms
+ are not used in modern avionics system.
+ They conclude that a Quality of Service (QoS) approach is needed to address
+ the problem and they propose an adaptive resource management scheme for
+ a real-time avionics system using anytime control and accompanying nontradition
+al task scheduling.
+ Russ and Stütz very recently proposed a higher level style of resource
+ management that includes task based guidance and navigation and perception
+ plans.
+ Their method focuses on finding algorithmic solutions adapting to perceptual
+ demands that vary during flight as well as balancing those demands with
+ sensory and computational resources
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "russ2012airborne"
+
+\end_inset
+
+.
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "narayan2009computationally"
+
+\end_inset
+
+ Narayan et al.
+ present a novel comptationally adaptive trajectory decision optimization
+ system that can dynamically manage, calculate, and schedule task execution
+ parameters.
+ An offline and online component work together to increase overall mission
+ efficiency.
+\end_layout
+
+\begin_layout Standard
+For satellite systems information gathering by imaging systems generally
+ happens in a relatively short time window (in low earth orbits around three
+ min) during which the system must maximize its efforts to collect the data.
+ There is generally a ten to fifteen minute window during which the system
+ can prepare resources for intense data collection.
+ Traditionally such task scheduling problems has been achieved by teams
+ of planners on the ground write and check procedures
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "harrison1999task"
+
+\end_inset
+
+.
+ However, automated methods have been proposed and used with success.
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bataille1999efficiency"
+
+\end_inset
+
+ the authors examine and design for physical constraints, fairness, and
+ efficiency for different agents using a shared resource (an earth observing
+ satellite).
+ In
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bresina1997optimising"
+
+\end_inset
+
+ two techniques, GenH which generates a specialized search heuristic, and
+ HBSS which employs the heuristic within a stochastic sampling method are
+ combined together to automatically generate high quality schedules with
+ respect to an objective function.
+\end_layout
+
+\begin_layout Standard
+Our work complements existing research by providing a mechanism to optimize
+ over cyber-physical resources as well as mission objectives for the holistic
+ system while leveraging optimization theory and more particularly optimal
+ control.
+ Existing solutions to dynamically adjust parameters can provide the tools
+ by which a system could use our methodology to produce more efficient missions
+ according to the individual metrics chosen in the cost function.
+\end_layout
+
+\begin_layout Section
+Cost Functions
+\end_layout
+
+\begin_layout Standard
+We desire to optimize over both physical and cyber characteristics to improve
+ efficiency and performance for our designated mission.
+ We do this by developing cost terms for physical system energy, cyber utilizati
+on, as well as mission-critical task performance.
+ This means developing cost terms for the energy consumed by the fan actuators
+ as function of desired angular velocity, a term representing the energy
+ consumed by the computing system, and a metric measuring the amount of
+ information we gather from the onboard camera.
+\end_layout
+
+\begin_layout Standard
+Our objective for the physical system will be to determine the optimal angular
+ velocity of TableSat for our proposed mission.
+ Because the onboard camera is fixed and rotating with TableSat, and since
+ we only allow for rotation in one direction, we need only consider simplified
+ motion about a single axis.
+ Further, for the cyber system we model a single real-time task which accomplish
+es the primary goals of the mission to view orange.
+ This task performs image acquisition, processing, and storage of each image.
+ Our design objective for the cyber system will be to determine the optimal
+ execution rate of this task.
+ While there are other system-critical tasks on the cyber system including
+ the control task, we assume these require a fixed amount of resources.
+ We instead focus on optimizing over the remaining non-critical bandwidth
+ available in the cyber system.
+\end_layout
+
+\begin_layout Standard
+We divide the cost terms into physical and cyber cost terms and associated
+ functions for clarity, and to emphasize the assimilation of each into a
+ system-wide cost function.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Physical
+\begin_inset Quotes erd
+\end_inset
+
+ in the context of a TableSat includes items related to rotation of the
+ system, for example, the rotating table, fan actuators, and sensors.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Cyber
+\begin_inset Quotes erd
+\end_inset
+
+ relates to items required for data processing, communication, image collection,
+ computation of control inputs, etc.
+\end_layout
+
+\begin_layout Subsection
+Physical System Terms
+\end_layout
+
+\begin_layout Standard
+To balance the goals of the physical system we seek to minimize total energy
+ consumption by the fan actuators while also minimizing time required for
+ mission completion.
+\end_layout
+
+\begin_layout Subsubsection
+Physical System Energy
+\end_layout
+
+\begin_layout Standard
+In TableSat all the energy required to rotate the table is consumed by the
+ fan actuators.
+ The metric then for physical system energy becomes
+\begin_inset Formula 
+\begin{equation}
+E_{p}=\int P\left(\omega\right)dt.\label{eq:E_p}
+\end{equation}
+
+\end_inset
+
+Because we use simple computer fans controlled by a 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "PWM"
+description "Pulse Width Modulation"
+
+\end_inset
+
+Pulse Width Modulation (PWM) signal we assume power consumed is simply
+\begin_inset Formula 
+\begin{equation}
+P\left(V\right)=IV\label{eq:power}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $I$
+\end_inset
+
+ is the constant current draw (a parameter of the fan), and 
+\begin_inset Formula $V$
+\end_inset
+
+ the time averaged voltage 
+\begin_inset Quotes eld
+\end_inset
+
+seen
+\begin_inset Quotes erd
+\end_inset
+
+ by the fan via the PWM duty cycle.
+ As voltage is a function of PWM signal which is our control input, we can
+ rewrite Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:power"
+
+\end_inset
+
+ as
+\begin_inset Formula 
+\[
+P\left(d\right)=IV_{{\rm max}}\frac{d-d_{{\rm min}}}{d_{{\rm max}}-d_{{\rm min}}}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $d$
+\end_inset
+
+ is the PWM duty cycle and 
+\begin_inset Formula $d_{{\rm min}}$
+\end_inset
+
+ and 
+\begin_inset Formula $d_{{\rm max}}$
+\end_inset
+
+ are the constant minimum and maximum duty cycles respectively as experimentally
+ determined.
+ 
+\begin_inset Formula $V_{{\rm max}}$
+\end_inset
+
+ is a constant parameter of the fan and is the maximum voltage the fan can
+ accept.
+\end_layout
+
+\begin_layout Standard
+Because we require a power function that takes angular velocity as a parameter
+ for optimization we conducted a series of experiments commanding a PWM
+ duty cycle, awaiting approximately steady state angular velocity, and subsequen
+tly timing the rotational speed.
+ We used MATLAB's 
+\family typewriter
+cftool
+\family default
+ to determine a linear curve fit as seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Linear-Curve-Fit"
+
+\end_inset
+
+.
+ We note that higher order polynomials would provide a better fit.
+ We explicitly chose a linear fit due to the uncertainty surrounding our
+ friction coefficients between experiments.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/cftool_screenshot.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Linear Curve Fit Using MATLAB's 
+\family typewriter
+cftool
+\family default
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Linear-Curve-Fit"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+ Functionally we have
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$\\omega$"
+description "Angular velocity"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+P\left(\omega\right)=IV_{{\rm max}}\left(\frac{p_{1}\omega+p_{2}-d_{{\rm min}}}{d_{{\rm max}}-d_{{\rm min}}}\right)\label{eq:p_omega}
+\end{equation}
+
+\end_inset
+
+Using the coefficients experimentally determined we can reduce Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:p_omega"
+
+\end_inset
+
+ to
+\begin_inset Formula 
+\begin{equation}
+P\left(\omega\right)=0.514\omega-0.292
+\end{equation}
+
+\end_inset
+
+ The experimentally determined power curve and associated energy curve can
+ be seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Power-and-Energy"
+
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/power_and_energy.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Power and Energy Curves for TableSat Physical System
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Power-and-Energy"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+ We note the flattening out of the energy curve as angular velocity increases.
+ This suggests that at some point it does not cost us significantly more
+ to rotate much faster.
+ This observation is seen later on in the final cost function.
+\end_layout
+
+\begin_layout Subsubsection
+Time
+\end_layout
+
+\begin_layout Standard
+In addition to minimizing energy, ideally we would like to efficiently accomplis
+h our mission by minimizing the time required to complete it.
+ Such time-minimal optimization cost terms appear frequently and are simply
+ given by 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$T$"
+description "Total time required to complete mission"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+T=\int dt.
+\end{equation}
+
+\end_inset
+
+We show the 3-D normalized cost curve for this metric, which does not depend
+ on the cyber rate, in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Time-Metric"
+
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/total_time.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Time Metric
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Time-Metric"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Cost Function for Physical System
+\end_layout
+
+\begin_layout Standard
+These two competing objectives, 
+\begin_inset Formula $E_{p}$
+\end_inset
+
+ and 
+\begin_inset Formula $T$
+\end_inset
+
+, comprise the cost function for the overall physical system 
+\begin_inset Formula 
+\begin{equation}
+J_{p}\left(\omega\right)=\beta_{p1}\int P\left(\omega\right)dt+\beta_{p2}\int dt\label{eq:J_p}
+\end{equation}
+
+\end_inset
+
+
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$J_p$"
+description "Cost function for physical system"
+
+\end_inset
+
+where 
+\begin_inset Formula $\beta_{p1},\,\beta_{p2}$
+\end_inset
+
+ are weighting terms.
+ Optimizing 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+ alone is what a traditional trajectory or path planner would do if no costs
+ are attributed to the cyber system.
+\end_layout
+
+\begin_layout Subsection
+Cyber System Terms
+\end_layout
+
+\begin_layout Standard
+For a modern autonomous system the cyber portion becomes the center point
+ for data collection, actuation inputs, communication, I/O, path planning,
+ control input calculation, etc.
+ In many real-time systems task execution rates are determined 
+\emph on
+a priori 
+\emph default
+based on requirements of the system and/or mission.
+ For example, the sampling rate of the control task may be selected based
+ on digital control analysis.
+ In this work we do not interfere with such high priority task assignments
+ and focus instead on the tuning of a lower priority mission critical task
+ giving us the ability to optimize over mission and cyber parameters without
+ interfering in safety critical tasks.
+ We assume that we cannot only conserve energy by optimally selecting execution
+ rates of lower priority tasks, but we can also increase mission effectiveness
+ by developing costs that relate task execution rates to mission efficiency.
+\end_layout
+
+\begin_layout Subsubsection
+Cyber Utilization
+\end_layout
+
+\begin_layout Standard
+In real-time system scheduling theory online schedules can be created by
+ examining relative deadlines of independent periodic tasks as in the Earliest
+ Deadline First (EDF)
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "EDF"
+description "Earliest Deadline First Scheduling Algorithm"
+
+\end_inset
+
+ scheduling algorithm.
+ Such optimal scheduling algorithms are dynamic by assigning task priority
+ as jobs are released to the operating system for scheduling
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "krishna1999real"
+
+\end_inset
+
+.
+ They therefore have the ability to respond to changing deadlines and periodic
+ rates.
+ 
+\end_layout
+
+\begin_layout Standard
+In this work we assume that at least part of the cyber utilization is fixed
+ based on selected and scheduled periodicity of mission critical tasks,
+ and instead focus on maximizing use of the remaining resources.
+ To that end, we assume a single task, 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$\\tau$"
+description "Real-time system task achieving important mission goal"
+
+\end_inset
+
+
+\begin_inset Formula $\tau$
+\end_inset
+
+, achieves the important mission goal of capturing and processing an image
+ of our orange and black cylindrical backdrop (see Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:TableSat"
+
+\end_inset
+
+).
+ The task runs at execution rate 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$r_{\\tau}$"
+description "Task execution rate in Hz of task $\\tau$"
+
+\end_inset
+
+
+\begin_inset Formula $\unit[r_{\tau}]{Hz}$
+\end_inset
+
+ and has a maximum execution rate of 
+\begin_inset Formula $\unit[r_{\tau,max}]{Hz}$
+\end_inset
+
+ stemming from restrictions based on available cyber resources.
+ That is, we ensure schedulability of the task based on 
+\begin_inset Formula $r_{\tau,{\rm max}}$
+\end_inset
+
+ but allow that period to change resulting in freed cyber resources to be
+ devoted to increased service of other tasks or simply to conserving energy.
+ We introduce the cyber utilization term
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "$U_\\tau$"
+description "Cyber utilization cost term"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+U_{\tau}=\frac{r_{\tau}}{r_{\tau,max}}.\label{eq:U_tau}
+\end{equation}
+
+\end_inset
+
+We note that 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ is the rate of execution of task 
+\begin_inset Formula $\tau$
+\end_inset
+
+ throughout the mission.
+ We assume that cyber utilization is proportional to energy consumed by
+ the cyber system, and as a result, minimizing it is the cyber analog to
+ the energy minimization term of the physical system in Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:E_p"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Mission Information
+\end_layout
+
+\begin_layout Standard
+We seek to relate mission efficiency to cyber and physical parameters.
+ For our specified mission, we are attempting to collect as many orange
+ pixels as possible by selecting a static 
+\begin_inset Formula $\omega$
+\end_inset
+
+ and 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ for a steady state rotation of TableSat.
+ To appropriately model the collection of orange pixels we make the simplifying
+ assumption that the orange blocks of the backdrop are laid out continuously
+ (as opposed to an alternating pattern with black) covering 
+\begin_inset Formula $\theta_{{\rm orange}}$
+\end_inset
+
+ radians of the rotation.
+ We then find the number of frames 
+\begin_inset Formula $F$
+\end_inset
+
+ collected during the interval which is a function of both angular velocity
+ and cyber task execution rate
+\begin_inset Formula 
+\begin{equation}
+F=\frac{r_{\tau}\theta_{{\rm orange}}}{\omega}.\label{eq:F}
+\end{equation}
+
+\end_inset
+
+We note that this is a continous function and does not truly represent the
+ discrete number of frames taken.
+ However, this approximation allows us to use existing mathematical tools
+ to solve the problem.
+ We then determine the amount of sweep made by the camera in 
+\begin_inset Formula $F$
+\end_inset
+
+ frames and including the camera's footprint 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ in radians
+\begin_inset Formula 
+\begin{equation}
+\theta_{F}=\gamma+\theta_{{\rm orange}}.\label{eq:theta_F}
+\end{equation}
+
+\end_inset
+
+We assume that the camera can 
+\series bold
+only 
+\series default
+see the colored backdrop and that all pixels will be counted as either orange
+ or black.
+ We can then combine Equations
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:F"
+
+\end_inset
+
+ and
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:theta_F"
+
+\end_inset
+
+ to determine the number of orange pixels per radian seen by the camera
+ which we call mission 
+\begin_inset Quotes eld
+\end_inset
+
+information
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+I\left(\omega,r_{\tau}\right)=\frac{FP\theta_{{\rm orange}}}{2\pi\theta_{F}}\label{eq:I}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $P$
+\end_inset
+
+ is the total number of pixels in an image (for a 
+\begin_inset Formula $640\times480$
+\end_inset
+
+ camera this is 307,200 pixels).
+\end_layout
+
+\begin_layout Standard
+Naturally, this metric as we have described it, should be maximized to produce
+ the greatest mission success.
+ Traditionally, we would simply minimize 
+\begin_inset Formula $-\int I\left(\omega,r_{\tau}\right)dt$
+\end_inset
+
+ for the equivalent.
+ This results in the metric shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "fig:negative_information"
+
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/negative_information.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $-I\left(\omega,r_{\tau}\right)$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:negative_information"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+ Such a metric becomes problematic in the totaly system cost function because
+ it is concave rather than convex.
+ This in turn means the final cost function has a saddle point and falls
+ off sharply toward the boundaries.
+ To be able to solve a well-behaved convex shaped optimization problem we
+ need a mission success metric that, when minimized, produces maximum mission
+ success.
+ Therefore we propose
+\begin_inset Formula 
+\begin{equation}
+M=\int\frac{1}{I\left(\omega,r_{\tau}\right)}dt\label{eq:M}
+\end{equation}
+
+\end_inset
+
+which can be seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "fig:Information-Metric"
+
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/info_metric.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Information Metric
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Information-Metric"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+ We note the nonlinear dependence of 
+\begin_inset Formula $M$
+\end_inset
+
+ on both angular velocity, and the cyber rate.
+ We also note that the dependence on cyber rate falls off as a steep exponential
+, and falls off more gradually with aircraft velocity.
+ This means we expect our Pareto front analysis in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Pareto-Fronts"
+
+\end_inset
+
+ to indicate higher mission success by increasing cyber rate than by going
+ slower.
+\end_layout
+
+\begin_layout Subsubsection
+Cost Function for Cyber System
+\end_layout
+
+\begin_layout Standard
+The expressions in Equations
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:U_tau"
+
+\end_inset
+
+ and
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:M"
+
+\end_inset
+
+ comprise the cost function for the cyber system
+\begin_inset Formula 
+\begin{equation}
+J_{c}\left(\omega,r_{\tau}\right)=\beta_{c1}\frac{r_{\tau}}{r_{\tau,max}}+\beta_{c2}\int\frac{1}{I\left(\omega,r_{\tau}\right)}\label{eq:J_c}
+\end{equation}
+
+\end_inset
+
+where we have weighting terms 
+\begin_inset Formula $\beta_{c1}$
+\end_inset
+
+, and 
+\begin_inset Formula $\beta_{c2}$
+\end_inset
+
+.
+ Such a cost function might be used if we were only interested in trading
+ cyber resource utilization cost against reward from accomplishing mission
+ objectives.
+\end_layout
+
+\begin_layout Subsection
+CPS Cost Function
+\end_layout
+
+\begin_layout Standard
+We desire, however, a holistic cost function that gives us optimal values
+ of 
+\begin_inset Formula $\omega$
+\end_inset
+
+, and 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ for the total system including mission objectives.
+ We therefore combine 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+ and 
+\begin_inset Formula $J_{c}$
+\end_inset
+
+ to obtain a CPS cost function
+\begin_inset Formula 
+\begin{equation}
+J\left(\omega,r_{\tau}\right)=\beta_{p1}\int P\left(\omega\right)dt+\beta_{p2}\int dt+\beta_{c1}\frac{r_{\tau}}{r_{\tau,max}}+\beta_{c2}\int\frac{1}{I\left(\omega,r_{\tau}\right)}dt\label{eq:J}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Results"
+
+\end_inset
+
+ we will use appropriate weighting to compare physical-only optimization,
+ cyber-only optimization, and total system optimization to demonstrate this
+ methodology.
+\end_layout
+
+\begin_layout Subsubsection
+Simplified Cost Function
+\end_layout
+
+\begin_layout Standard
+Although Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:J"
+
+\end_inset
+
+ could be solved for the optimal trajectories for 
+\begin_inset Formula $\omega$
+\end_inset
+
+, and 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ as in
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bradley2012multidisciplinary"
+
+\end_inset
+
+ we limit our solution to finding the static 
+\begin_inset Formula $\omega$
+\end_inset
+
+, and 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ that minimizes the cost function.
+ This implies we are able to simplify Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:J"
+
+\end_inset
+
+ to
+\begin_inset Formula 
+\begin{equation}
+J\left(\omega,r_{\tau}\right)=\beta_{p1}\frac{DP\left(\omega\right)}{\omega\max\left\{ E_{p}\right\} }+\beta_{p2}\frac{D}{\omega\max\left\{ T\right\} }+\beta_{c1}\frac{r_{\tau}}{r_{\tau,{\rm max}}}+\beta_{c2}\frac{1}{DI\left(\omega,r_{\tau}\right)\max\left\{ M\right\} }\label{eq:simplified_J}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $D$
+\end_inset
+
+ is the total rotational 
+\begin_inset Quotes eld
+\end_inset
+
+distance
+\begin_inset Quotes erd
+\end_inset
+
+ of the mission (we usually use 
+\begin_inset Formula $2\pi$
+\end_inset
+
+ radians), 
+\begin_inset Formula $\max\left\{ E_{P}\right\} $
+\end_inset
+
+ is found by assuming the maximum angular velocity for the mission, 
+\begin_inset Formula $\max\left\{ T\right\} $
+\end_inset
+
+ is found from the slowest angular velocity, and 
+\begin_inset Formula $\max\left\{ M\right\} $
+\end_inset
+
+ from the fastest angular velocity and slowest cyber rate.
+ We use numerical methods to solve the problem which we describe more in
+ Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Numerical-method"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Optimization Problem
+\end_layout
+
+\begin_layout Standard
+This leads to the constrained optimization problem we wish to solve
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "eq:optimization_problem"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align}
+{\rm Minimize} & J\left(\omega,r_{\tau}\right)\\
+\text{subject to} & \omega\le\omega_{{\rm max}}\\
+ & \omega\ge\omega_{{\rm min}}\\
+ & r_{\tau}\le r_{\tau,{\rm max}}\\
+ & r_{\tau}\ge r_{\tau,{\rm min}}
+\end{align}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+where 
+\begin_inset Formula $\omega_{{\rm min}},\,\omega_{{\rm max}},\, r_{\tau,{\rm min}}$
+\end_inset
+
+, and 
+\begin_inset Formula $r_{\tau,{\rm max}}$
+\end_inset
+
+ are determined based on limitations of the physical system along with diminishi
+ng returns of success, and are
+\begin_inset Formula 
+\begin{align*}
+0.95\unitfrac{rads}{s} & \le\omega\le5.52\unitfrac{rads}{s}\\
+\unit[1]{Hz} & \le r_{\tau}\le\unit[8]{Hz}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+TableSat Details
+\end_layout
+
+\begin_layout Standard
+Our objective is to survey orange segments of an orange-and-black paper
+ wall surrounding a rotating table-top satellite, TableSat, using a fixed
+ camera mounted at the center.
+ The surveying mission requires two configurable settings, angular velocity
+ and task rate.
+ Below is a description of the hardware and software components of our applicati
+on, as well as the assumptions and model parameters that arose from the
+ components.
+\end_layout
+
+\begin_layout Subsection
+Experimental Setup and Models
+\end_layout
+
+\begin_layout Subsubsection
+TableSat
+\end_layout
+
+\begin_layout Standard
+TableSat is table-top satellite with one degree of freedom.
+ It has a base with a central post that comes to a conical point.
+ The board itself balances on the post via a screw located at the middle
+ of the board.
+ Because the contact is reduced to that single point, TableSat has a very
+ low coefficient of friction.
+ It rotates around the base using two standard computer cooling fans which
+ take PWM signals to dictate rotations per minute (RPMs).
+ The computer-on-module (COM) is a Gumstix Overo with a Tobi expansion board
+ that provides GPIO, such as that used for PWM output.
+ TableSat also has a camera mounted at the center that connects to the COM
+ through the USB port.
+\end_layout
+
+\begin_layout Subsubsection
+Gumstix
+\end_layout
+
+\begin_layout Standard
+The TableSat COM is a Gumstix Overo with a 1GHz ARMv7 processor and 512
+ MB DDR RAM.
+ The Gumstix runs Linux 2.6.36, which, it must be emphasized, is not a real-time
+ operating system (RTOS).
+ That means that because our software timers are run at the user-level,
+ as opposed to the kernel-level, the timers may be limited in their precision.
+ The slow speed of the processor also means that the maximum frame capture
+ and process rate is 8 frames per second (FPS).
+ Finding an efficient means of employing this limited resource is therefore
+ crucial.
+\end_layout
+
+\begin_layout Subsubsection
+Fans
+\end_layout
+
+\begin_layout Standard
+The actuators are two Sunon KD1209PTB2 computer cooling fans with a max
+ rated speed of 2600 RPM.
+ The operating voltage ranges between 5 and 13.8 volts of direct current.
+ They're rated to draw 0.2 amps of current and 2.4 watts of power.
+ 
+\end_layout
+
+\begin_layout Standard
+The fan speed is set by sending a PWM signal over the control line.
+ We hooked the PWM line up to an oscilloscope and determined what bytes
+ corresponded to which PWM signals.
+ In particular, we figured out what bytes corresponded to max speed.
+ In this way, we could tell what fraction of max fan speed we were signaling.
+ By running a series of timed experiments and fitting a curve to the resulting
+ data, we were able to map PWM signal to angular velocity.
+ As described above, to model the energy usage of the fans, we assumed that
+ the power draw is proportional to the average amount of time the OWM signal
+ is up.
+\end_layout
+
+\begin_layout Subsubsection
+Camera
+\end_layout
+
+\begin_layout Standard
+The webcam is a Logitech QuickCam Pro 9000 that connects to the board via
+ USB.
+ It has a max frame rate of 30 FPS and a resolution of 640x480.
+ The camera also has an automatic brightness/contrast adjustment feature
+ that must be considered and accounted for when attempting computer vision
+ tasks.
+\end_layout
+
+\begin_layout Subsubsection
+Propulsion Control
+\end_layout
+
+\begin_layout Standard
+To properly maintain a constant speed, we would need to get information
+ about how fast the TableSat was going and adjust the fan signal accordingly.
+ However, that would require using the I2C bus protocol to communicate with
+ the onboard inertial measurement unit (IMU), which ended up not being a
+ feasible goal for the scope of this project.
+ In our experiments, we just send a constant PWM signal and assume that
+ after some time the TableSat will reach a steady state speed.
+ As noted in the Fans section, we mapped PWM signals to steady state angular
+ velocities using the results from a set of timed trials.
+\end_layout
+
+\begin_layout Subsubsection
+Frame Capture
+\end_layout
+
+\begin_layout Standard
+Camera access and frame processing was done using OpenCV libraries.
+ We wrote a function that captured a 640x480 frame from the webcam, converted
+ it to HSV (Hue-Saturation-Value) and then thresholded on orange.
+ The resulting frame had white pixels (value 255) where orange was detected
+ and black pixels (value 0) everywhere else.
+ To get a count of the number of white pixels in the frame, we summed up
+ all the values and divided by 255.
+ Once the camera is initialized, this capture-and-process task can be called
+ whenever desired.
+\end_layout
+
+\begin_layout Subsubsection
+Cyclic Executive
+\end_layout
+
+\begin_layout Standard
+Our program takes two parameters: angular velocity and the task rate for
+ our periodic task.
+ Since we only consider the static case in this project, we set the fan
+ speed in the beginning that corresponds to the desired angular velocity,
+ and the only periodic task is then capturing frames from the camera.
+ 
+\end_layout
+
+\begin_layout Standard
+After the PWM signal is initialized, we wait three minutes for the TableSat
+ to spin up to steady state angular velocity.
+ Then, when the experimenter presses <ctrl>-c, the program starts capturing
+ frames at the specified frame rate.
+ This is done using a cyclic executive that consists of one task, the frame
+ capturing/pixel counting task.
+ When the experimenter presses <ctrl>-c again after the desired number of
+ revolutions, the system stops and some metrics are displayed - the number
+ of white pixels seen, the number of total pixels captured, and the amount
+ of time that the cyclic executive executed for.
+\end_layout
+
+\begin_layout Subsection
+Assumptions
+\end_layout
+
+\begin_layout Standard
+We assume that friction is constant, or at least consistent.
+ This is not necessarily true, because even when the TableSat is perfectly
+ balanced at rest, as it rotates it begins to precess due to the heterogeneous
+ mounted components applying non-uniform forces to the board.
+ As the TableSat precesses, it changes position on its base, which changes
+ the coefficient of friction over time.
+ 
+\end_layout
+
+\begin_layout Standard
+However, assuming constant (or consistent) friction is necessary for the
+ assumption that the same PWM signal will always result in the same steady-state
+ velocity.
+ Since we are using open-loop control, this assumption is crucial.
+\end_layout
+
+\begin_layout Section
+Analytical Results
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Results"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We first investigated the simulated impact and tradeoffs between objectives
+ from both the cyber and physical systems with the goal of minimizing energy
+ use and time while maximizing mission success.
+ We hope to demonstrate that consideration given to both physical, cyber,
+ and mission objectives can yield more well-rounded, efficient results.
+ We first examine and analyze Pareto fronts of the cost function in Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:simplified_J"
+
+\end_inset
+
+ to gain insight into the tradeoffs from competing objectives.
+ We then select weights 
+\begin_inset Formula $\beta_{p1},\,\beta_{p2},\,\beta_{c1}$
+\end_inset
+
+, and 
+\begin_inset Formula $\beta_{c2}$
+\end_inset
+
+, solve the optimization problem and show results.
+\end_layout
+
+\begin_layout Subsection
+Pareto Fronts
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Pareto-Fronts"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Pareto front examination and analysis gives insight into the tradeoffs between
+ competing objectives.
+ Pareto front plots of 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+ (Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:J_p"
+
+\end_inset
+
+) and 
+\begin_inset Formula $J_{c}$
+\end_inset
+
+ (Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:J_c"
+
+\end_inset
+
+) can be seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Pareto-Front-J_p-and-J_c"
+
+\end_inset
+
+ where the black (darker) data points represent the Pareto front.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_Jp.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pareto Front for 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Pareto-Front-for-J_p"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_Jc.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pareto Front for 
+\begin_inset Formula $J_{c}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Pareto-Front-for-J_c"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pareto Front for 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+ and 
+\begin_inset Formula $J_{c}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Pareto-Front-J_p-and-J_c"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+These curves show how the objectives for the physical and cyber system,
+ individually, trade off their respective costs independent of any coupling
+ they have.
+ The plots in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Pareto-Front-J_p-and-J_c"
+
+\end_inset
+
+ follow their respective governing dynamical equations to produce the curves
+ shown.
+ Note that the plot for the Pareto front for 
+\begin_inset Formula $J_{p}$
+\end_inset
+
+ demonstrates that all points are on the Pareto front.
+ Because our mission information term is a function of both 
+\begin_inset Formula $\omega$
+\end_inset
+
+ and 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+ we have multiple points corresponding to a single cyber rate 
+\begin_inset Formula $r_{\tau}$
+\end_inset
+
+.
+ As a result, the velocities resulting in a higher mission information 
+\begin_inset Formula $\left(\text{and therefore lower }I^{-1}\right)$
+\end_inset
+
+ are dominated by those producing lower mission information.
+\end_layout
+
+\begin_layout Standard
+We can gain more insight into the tradeoffs of the entire cost function
+ by also examining the tradeoffs between the CPS as a whole.
+ We show these Pareto fronts in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pareto_J"
+
+\end_inset
+
+ where in each subfigure we examine the tradeoff between three of the four
+ objectives.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_J_IUE.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $I^{-1}$
+\end_inset
+
+, 
+\begin_inset Formula $U_{\tau}$
+\end_inset
+
+, and 
+\begin_inset Formula $E_{p}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pareto_IUE"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_J_TEI.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $T$
+\end_inset
+
+, 
+\begin_inset Formula $E_{p}$
+\end_inset
+
+, and 
+\begin_inset Formula $I^{-1}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pareto_TEI"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_J_UTE.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $U_{\tau}$
+\end_inset
+
+, 
+\begin_inset Formula $T$
+\end_inset
+
+, and 
+\begin_inset Formula $E_{p}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pareto_UTE"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename pics/pareto_J_UTI.png
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $I^{-1}$
+\end_inset
+
+, 
+\begin_inset Formula $T$
+\end_inset
+
+, and 
+\begin_inset Formula $U_{\tau}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pareto_ITU"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pareto Fronts for 
+\begin_inset Formula $J$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pareto_J"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pareto_IUE"
+
+\end_inset
+
+ we can see how the physical energy term, and cyber utilization cost tradeoff
+ to give us better or worse mission information.
+ This curve primarily follows the shape of the mission informatio metric
+ seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Information-Metric"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pareto_TEI"
+
+\end_inset
+
+ we see how mission information and physical system energy change the time
+ cost.
+ The curve here follows the individual metrics fairly well.
+ In the Pareto front plot in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pareto_UTE"
+
+\end_inset
+
+ cyber utilization changes with total time and physical system energy.
+ There are many dominated points in this plot due to independent nature
+ of selecting angular velocity and cyber rate.
+ In other words, many cyber rates could be chosen for a given angular velocity
+ and there is not coupling between these three terms.
+\end_layout
+
+\begin_layout Standard
+Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pareto_ITU"
+
+\end_inset
+
+ shows the tradeoffs between mission information, total time, and cyber
+ utilization.
+ Here the entire plot is a pareto front indicating a strong tradeoff due
+ to the coupling in these terms.
+\end_layout
+
+\begin_layout Subsection
+Optimization over Total Cost Function 
+\begin_inset Formula $J\left(\omega,r_{\tau}\right)$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Numerical-method"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We solve the optimization problem in Equation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:optimization_problem"
+
+\end_inset
+
+ using numerical methods.
+ We use MATLAB's solver 
+\family typewriter
+fmincon
+\family default
+ and setting lower and upper bounds on the design parameters.
+ This MATLAB function uses active-set optimization which utilizes sequential
+ quadratic programming (SQP) and estimates the Hessian of the Lagrangian
+ using the well-known BFGS algorithm
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "liu1989limited"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Often there are auxiliary reasons for favoring one cost term over another
+ such as length of time since the last mission, or a cloudy day resulting
+ in poorer image quality.
+ Since we wish to investigate the comparison of holistic CPS optimization
+ with independent physical and cyber system optimization we allow corresponding
+ weights to go to zero as indicated in the 
+\begin_inset Formula $1^{st}$
+\end_inset
+
+ and 
+\begin_inset Formula $2^{nd}$
+\end_inset
+
+ rows of Table
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Comparison-of-results"
+
+\end_inset
+
+.
+ In the 
+\begin_inset Formula $3^{rd}$
+\end_inset
+
+ row we use some 
+\emph on
+a priori 
+\emph default
+intuition to select weights that focus slightly more on time and less on
+ cyber utilization.
+ The analytical results of our optimization scheme and simulation are in
+ Table
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Comparison-of-results"
+
+\end_inset
+
+.
+ 
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Comparison of Experimental Results
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Comparison-of-results"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="8">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Solution Type
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $E_{p}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $T$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $U_{\tau}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $M$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Total
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+% Worse than
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lowest Cost Soln.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[5.2]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=\beta_{p2}=0.5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.87]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[1.21]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.25$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.21\times10^{-5}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.0963
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $100.8\%$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[2]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=\beta_{c2}=0.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[0.95]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=\beta_{p2}=0.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[1.30]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[6.61]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.38$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.70\times10^{-6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $ $
+\end_inset
+
+0.5457
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N/A
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[3]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=\beta_{c2}=0.5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[2.42]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=1,\,\beta_{p2}=1.2$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.47]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.60]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.25$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.03\times10^{-6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.7179
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $ $
+\end_inset
+
+
+\begin_inset Formula $31.55\%$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[2]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=0.8,\,\beta_{c2}=1$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+These results suggests that the lowest cost solution comes by focusing on
+ cyber parameters.
+ This indicates there may be a problem with the weights that we are applying
+ to the cost function.
+ We note the specific weighting we used that slightly favors time over cyber
+ utilization, which means we won't collect as many orange pixels.
+ Despite these analytical results, in the next Section we show experimental
+ results that indeed validate this design methodology.
+\end_layout
+
+\begin_layout Section
+Experimental Results
+\end_layout
+
+\begin_layout Standard
+We present in Table
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Comparison-of-experimental_results"
+
+\end_inset
+
+ the results from our experiments with TableSat.
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Comparison of Experimental Results
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Comparison-of-experimental_results"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="8">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="0pt">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Solution Type
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $E_{p}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $T$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $U_{\tau}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $M$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Total
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+% Worse than
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lowest Cost Soln.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[5.2]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=\beta_{p2}=0.5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.88]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[1.21]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.25$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.75\times10^{-6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.4483$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $9.09\%$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[2]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=\beta_{c2}=0.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[0.95]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=\beta_{p2}=0.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[1.29]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[6.61]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.38$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.36\times10^{-7}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $ $
+\end_inset
+
+0.4635
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $12.79\%$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[3]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=\beta_{c2}=0.5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega=\unit[2.42]{\unitfrac{rads}{s}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $J$
+\end_inset
+
+ with 
+\begin_inset Formula $\beta_{p1}=1,\,\beta_{p2}=1.2$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.39]{J}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\unit[2.52]{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.25$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.392\times10^{-6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.4109
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="3" alignment="center" valignment="middle" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $ $
+\end_inset
+
+N/A
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{\tau}=\unit[2]{Hz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{c1}=0.8,\,\beta_{c2}=1$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multirow="4" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ As we had hoped, the lowest cost solution was indeed the total system optimizat
+ion that accounts for cyber, physical, and mission objectives.
+\end_layout
+
+\begin_layout Section
+Conclusions and Future Work
+\end_layout
+
+\begin_layout Standard
+The impact of the digital revolution will continue to reverberate across
+ many fields for some time.
+ As cyber and physical systems become more tightly integrated, the need
+ for strong multidisciplinary co-design techniques becomes increasingly
+ urgent.
+ 
+\end_layout
+
+\begin_layout Standard
+In this paper, we've implemented one such proposed optimization scheme -
+ a cost function combining physical and cyber terms - on real hardware.
+ We used a TableSat with a mounted camera to undertake a mission to survey
+ orange segments of an orange-and-black paper landscape.
+ We experimentally determined system-specific parameters for our equations
+ and used the resulting optimization problem to produce an optimal angular
+ velocity and task rate.
+ We were then able to use these results to configure a real mission, and
+ compare real-world performance between the traditional optimization method
+ and the cost-function method.
+ 
+\end_layout
+
+\begin_layout Standard
+Our results showed that our multi-disciplinary approach indeed resulted
+ in better efficiency than optimizing the physical terms without considering
+ the cyber term (or optimizing the cyber term without considering the physical
+ term).
+ This supports the theoretical results found by previous work.
+ 
+\end_layout
+
+\begin_layout Standard
+However, these results have limited statistical significance, as they are
+ results from only one run for each configuration.
+ The TableSat platform was very noisy and had extremely high variance in
+ steady state speed.
+ We tried to calibrate it before every run such that the behavior roughly
+ matched the experimental results we obtained earlier when mapping PWM signals
+ to angular velocity, but this was time-consuming and statistically unsatisfying.
+ Another result of this is that we were not able to do a parameter sweep
+ of cost-function weights.
+ Our information metric is also not very sophisticated and may not be representa
+tive of all the complexities present in many real applications.
+\end_layout
+
+\begin_layout Standard
+This work highlighted many of the difficulties associated with working with
+ physical systems, one of which is that some physical phenomena are extremely
+ sensistive to initial conditions.
+ At a macro-level this looks like inconsistency, e.g.
+ wildly varying steady-state speeds.
+ To be able to use simple equations that don't need to account for everything
+ down to atoms, the system must display consistent, stable states at whatever
+ scale that you're modeling.
+ A major focus of control theory is ensuring this kind of homeostasis for
+ physical systems with noisy components (or systems with a high-dimensional
+ state space).
+ The way to achieve this kind of reliability is by using closed-loop control.
+ For the scope of this project, however, we used naive, feedback-free open-loop
+ control, which made data collection difficult.
+ Proper control is crucial if you want to be able to make any guarantees
+ about the behavior of system.
+\end_layout
+
+\begin_layout Standard
+For those reasons, further work on this particular application would require
+ writing a closed-loop controller for the TableSat platform.
+ That would involve developing I2C utilities so that we can talk to the
+ IMU.
+ The feedback provided by the sensor would allow us to maintain a constant
+ velocity, which would produce far more consistent results.
+ Then we could do a broad parameter sweep of our cost function.
+ However, a major difficulty of closed-loop control is that the power consumptio
+n of the fans will become much harder to model, as the fan speeds will constantl
+y readjust.
+ 
+\end_layout
+
+\begin_layout Standard
+Though further work in this area presents challenges, the effort may be
+ well worth it.
+ As cyber-physical systems become a more and more ubiquitous presence in
+ our lives, we must embrace the itegration of previously disparate paradigms
+ and begin working towards a similarly integrated multi-disciplinary approach.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "cite_database"
+options "IEEEtran"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
