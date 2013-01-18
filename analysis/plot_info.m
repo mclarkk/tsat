@@ -14,7 +14,7 @@ max_info = getMaxInformation(total_dist,cyber_rate,max_angular_vel);
 
 information = zeros(1,length(angular_vel));
 for i=1:length(angular_vel)
-    information(i) = getInformation(angular_vel(i),cyber_rate)*total_dist/max_info;
+    information(i) = getInformation(angular_vel(i),cyber_rate)/(total_dist*max_info);
 
 end;
 
@@ -41,7 +41,7 @@ max_info = getMaxInformation(total_dist,min_cyber_rate,angular_vel);
 
 information = zeros(1,length(rates));
 for i=1:length(rates)
-    information(i) = getInformation(angular_vel,rates(i))*total_dist/max_info;
+    information(i) = getInformation(angular_vel,rates(i))/(total_dist*max_info);
 end;
 
 figure(2)

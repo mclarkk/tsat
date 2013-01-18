@@ -10,7 +10,8 @@ function [costs] = getCosts(tsat_angular_vel, cyber_rate)
 global min_angular_vel max_angular_vel min_cyber_rate max_cyber_rate;
 persistent max_energy max_information max_time;
 % some constants
-total_dist = 4*pi;
+%total_dist = 4*pi;
+total_dist = 2*pi;
 
 % assign persistent variables
 if(isempty(max_energy))
@@ -24,7 +25,8 @@ total_time = total_dist/tsat_angular_vel;
 tsat_energy = total_time * getPower(tsat_angular_vel)/max_energy;
 time = total_time/max_time;
 cyber_util = cyber_rate/max_cyber_rate;
-information = total_dist * getInformation(tsat_angular_vel,cyber_rate)/max_information;
+information = getInformation(tsat_angular_vel,cyber_rate)/(total_dist*max_information);
+%information = getInformation(tsat_angular_vel,cyber_rate)/total_dist;
 
 costs = [tsat_energy;
          time;

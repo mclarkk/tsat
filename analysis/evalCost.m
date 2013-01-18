@@ -19,8 +19,8 @@ info_weight_Jc = 10;
 %global ac_weight time_weight util_weight ent_weight;
 % set weights for J
 tsat_weight = 10;
-time_weight = 12;
-util_weight = 8;
+time_weight = 10;
+util_weight = 10;
 info_weight = 10;
 
 %costs = simulate(vel,cyber_rate);

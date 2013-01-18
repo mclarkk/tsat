@@ -4,7 +4,7 @@
 function [maxInfo] = getMaxInformation(dist,min_cyber_rate,max_angular_vel)
 
 % get info per radian
-infoPerRadian = getInformation(max_angular_vel,min_cyber_rate);
-maxInfo = infoPerRadian*dist;
+radiansPerInfo = getInformation(max_angular_vel,min_cyber_rate);
+maxInfo = radiansPerInfo/dist;
 
 end

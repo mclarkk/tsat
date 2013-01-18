@@ -18,14 +18,15 @@ xlabel('Angular Velocity (rads/s)','FontSize',12)
 
 % now plot energy
 % some constants
-total_dist = 4*pi;
+total_dist = 2*pi;
 % assign persistent variables
-max_energy = getMaxEnergy(total_dist,min_angular_vel,max_angular_vel);
+%max_energy = getMaxEnergy(total_dist,min_angular_vel,max_angular_vel);
 
 tsat_energy = zeros(1,length(angular_vel));
 for i=1:length(angular_vel)
     time = total_dist/angular_vel(i);
-    tsat_energy(i) = getPower(angular_vel(i))*time/max_energy;
+    %tsat_energy(i) = getPower(angular_vel(i))*time/max_energy;
+    tsat_energy(i) = getPower(angular_vel(i))*time;
 end
 
 figure(2)
@@ -37,7 +38,7 @@ title('Tsat Propulsion Energy','FontSize',12)
 figure(3)
 subplot(2,1,1)
 plot(angular_vel,power);
-title('Power and Energy','FontSize',12)
+title('Power and Energy For One Revolution','FontSize',12)
 ylabel('Watts','FontSize',12)
 xlabel('Angular Velocity (rads/s)','FontSize',12)
 subplot(2,1,2)

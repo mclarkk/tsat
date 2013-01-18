@@ -7,7 +7,7 @@
 % NOTE: Fortunately, we can assume that the vertical sweep of the camera is not
 % beyond the wall of paper.
 
-function [infoPerRadian] = getInformation(angular_vel, cyber_rate)
+function [radiansPerInfo] = getInformation(angular_vel, cyber_rate)
 
 persistent gamma Ptot thetaOrange;
 if(isempty(gamma))
@@ -29,8 +29,8 @@ thetaF = gamma + thetaOrange;
 % didn't sweep as much area as there was orange and therefore all the
 % pixels I saw were orange.
 proportion = thetaOrange/thetaF; 
-% foo = floor(proportion*F*Ptot/(2*pi));
+%infoPerRadian = proportion*F*Ptot/(2*pi);
 % infoPerRadian = exp(-4*foo);
-infoPerRadian = 1/(proportion*F*Ptot/(2*pi));
+radiansPerInfo = 1/(proportion*F*Ptot/(2*pi));
 
 end

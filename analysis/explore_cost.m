@@ -23,8 +23,8 @@ info_weight_Jc = 1;
 
 % set weights for the cost function
 tsat_weight = 1;
-time_weight = 1.2;
-util_weight = 0.8;
+time_weight = 1;
+util_weight = 1;
 info_weight = 1;
 
 tsat_energy = zeros(length(cyber_rates),length(angular_vels));
@@ -82,6 +82,7 @@ surf(angular_vels,cyber_rates,information);
 ylabel('Cyber Rate (Hz)','FontSize',12)
 xlabel('Angular Velocity (rads/s)','FontSize',12)
 title('Information^{-1}','FontSize',12)
+%title('Information','FontSize',12)
 
 figure(5)
 surf(angular_vels,cyber_rates,Jp);
